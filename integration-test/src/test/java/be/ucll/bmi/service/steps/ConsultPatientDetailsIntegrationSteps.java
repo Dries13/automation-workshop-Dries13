@@ -2,6 +2,7 @@ package be.ucll.bmi.service.steps;
 
 import be.ucll.bmi.PatientApplication;
 import be.ucll.bmi.data.Persona;
+import be.ucll.bmi.model.Patient;
 import be.ucll.bmi.service.ServiceException;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
@@ -23,5 +24,30 @@ public class ConsultPatientDetailsIntegrationSteps extends IntegrationSteps {
         reset();
     }
 
+    @Given("patient Sara is not registered")
+    public void patient_sara_is_not_registered() {
+        // Write code here that turns the phrase above into concrete actions
+        //Niks nodig hier als ze toch niet geregistreerd is
+    }
+    @When("Martha requests the patient details of Sara")
+    public void martha_requests_the_patient_details_of_sara() {
+        //TODO - obtain Sara’s social security number
+        Patient patient = Persona.getPatient("Sara");
+        context.setPatient(patient);
+        String ssn = patient.getSocialSecurityNumber();
+
+        try {
+            patientService.findPatient(ssn);
+        } catch (ServiceException e) {
+            context.addError(e.getMessage());
+        }
+
+    }
+    @Then("Martha should be given an error message explaining that the requested patient does not exist")
+    public void martha_should_be_given_an_error_message_explaining_that_the_requested_patient_does_not_exist() {
+        List<String> errors = context.getErrors();
+        assertEquals(1, errors.size());
+        assertEquals("patient.does.not.exist", errors.get(0));
+    }
     
 }
